@@ -1,12 +1,8 @@
-use std::{
-    mem::{size_of, transmute},
-    time::Instant,
-};
-
-use winapi::ctypes::c_int;
-use winapi::um::winuser::*;
+use std::time::Instant;
 
 use clap::Parser;
+
+mod peripherals;
 
 #[derive(Parser, Debug)]
 #[clap()]
@@ -18,30 +14,6 @@ struct Args {
     /// Number of bullets to shoot per burst
     #[clap(short, long, value_parser, default_value_t = 2)]
     num_bullets: u8,
-}
-
-fn is_mouse_clicked() -> bool {
-    let res = unsafe { GetKeyState(VK_LBUTTON) };
-
-    res & (1 << 15) != 0
-}
-
-fn unclick_mouse() {
-    let mut input = INPUT {
-        type_: INPUT_MOUSE,
-        u: unsafe {
-            transmute(MOUSEINPUT {
-                dx: 0,
-                dy: 0,
-                mouseData: 0,
-                dwFlags: MOUSEEVENTF_LEFTUP,
-                dwExtraInfo: 0,
-                time: 0,
-            })
-        },
-    };
-
-    unsafe { SendInput(1, &mut input as LPINPUT, size_of::<INPUT>() as c_int) };
 }
 
 fn main() {
@@ -58,16 +30,16 @@ fn main() {
 
     loop {
         let start = Instant::now();
-        let mut mouse_down = is_mouse_clicked();
+        let mut mouse_down = peripherals::is_mouse_clicked();
 
         'mouse: while mouse_down {
             let time_passed = start.elapsed();
             if time_passed.as_secs_f32() >= sleep_time {
-                unclick_mouse();
+                peripherals::unclick_mouse();
                 break 'mouse;
             }
 
-            mouse_down = is_mouse_clicked();
+            mouse_down = peripherals::is_mouse_clicked();
         }
     }
 }
