@@ -6,6 +6,20 @@ use std::{
 use winapi::ctypes::c_int;
 use winapi::um::winuser::*;
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap()]
+struct Args {
+    /// Name of the weapon (either Vandal or Phantom) to use
+    #[clap(short, long, value_parser)]
+    weapon_name: String,
+
+    /// Number of bullets to shoot per burst
+    #[clap(short, long, value_parser, default_value_t = 2)]
+    num_bullets: u8,
+}
+
 fn is_mouse_clicked() -> bool {
     let res = unsafe { GetKeyState(VK_LBUTTON) };
 
@@ -31,10 +45,16 @@ fn unclick_mouse() {
 }
 
 fn main() {
-    const FIRE_RATE: i32 = 11;
-    const NUM_BULLETS: i32 = 2;
+    let args = Args::parse();
 
-    const SLEEP_TIME: f64 = ((NUM_BULLETS as f64) / (FIRE_RATE as f64)) * 0.75;
+    let fire_rate = match args.weapon_name.trim().to_lowercase().as_str() {
+        "vandal" => 9.75f32,
+        "phantom" => 11.0f32,
+        _ => todo!(),
+    };
+    let num_bullets = args.num_bullets;
+
+    let sleep_time = (num_bullets as f32 / fire_rate) * 0.75;
 
     loop {
         let start = Instant::now();
@@ -42,12 +62,12 @@ fn main() {
 
         'mouse: while mouse_down {
             let time_passed = start.elapsed();
-            mouse_down = is_mouse_clicked();
-
-            if time_passed.as_secs_f64() >= SLEEP_TIME {
+            if time_passed.as_secs_f32() >= sleep_time {
                 unclick_mouse();
                 break 'mouse;
             }
+
+            mouse_down = is_mouse_clicked();
         }
     }
 }
