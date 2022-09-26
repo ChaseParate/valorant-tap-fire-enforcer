@@ -1,7 +1,6 @@
 use std::{
     mem::{size_of, transmute},
-    thread::sleep,
-    time::Duration,
+    time::Instant,
 };
 
 use winapi::ctypes::c_int;
@@ -32,17 +31,23 @@ fn unclick_mouse() {
 }
 
 fn main() {
+    const FIRE_RATE: i32 = 11;
+    const NUM_BULLETS: i32 = 2;
+
+    const SLEEP_TIME: f64 = ((NUM_BULLETS as f64) / (FIRE_RATE as f64)) * 0.75;
+
     loop {
-        let mouse_down = is_mouse_clicked();
-        println!(
-            "The mouse is {}",
-            if mouse_down { "down" } else { "not down" }
-        );
+        let start = Instant::now();
+        let mut mouse_down = is_mouse_clicked();
 
-        if mouse_down {
-            unclick_mouse();
+        'mouse: while mouse_down {
+            let time_passed = start.elapsed();
+            mouse_down = is_mouse_clicked();
+
+            if time_passed.as_secs_f64() >= SLEEP_TIME {
+                unclick_mouse();
+                break 'mouse;
+            }
         }
-
-        sleep(Duration::from_millis(100));
     }
 }
