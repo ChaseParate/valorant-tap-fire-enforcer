@@ -1,10 +1,10 @@
 [package]
 name = "valorant_tap_fire_enforcer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "3.2.22", features = ["derive"] }
-winapi = { version = "0.3.9", features = ["winuser"] }
+windows = { version = "0.42.0", features = ["Win32_UI_Input_KeyboardAndMouse"] }
