@@ -1,28 +1,32 @@
 use std::time::Instant;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 mod peripherals;
 
 #[derive(Parser, Debug)]
-#[clap()]
 struct Args {
-    /// Name of the weapon (either Vandal or Phantom) to use
-    #[clap(short, long, value_parser)]
-    weapon_name: String,
+    /// Name of the weapon to use
+    #[clap(short, long, arg_enum, value_parser)]
+    weapon_name: Weapon,
 
     /// Number of bullets to shoot per burst
     #[clap(short, long, value_parser, default_value_t = 2)]
     num_bullets: u8,
 }
 
+#[derive(ValueEnum, Clone, Debug)]
+enum Weapon {
+    Vandal,
+    Phantom,
+}
+
 fn main() {
     let args = Args::parse();
 
-    let fire_rate = match args.weapon_name.to_lowercase().trim() {
-        "vandal" => 9.75f32,
-        "phantom" => 11.0f32,
-        _ => todo!(),
+    let fire_rate = match args.weapon_name {
+        Weapon::Vandal => 9.75,
+        Weapon::Phantom => 11.0,
     };
     let num_bullets = args.num_bullets;
 
