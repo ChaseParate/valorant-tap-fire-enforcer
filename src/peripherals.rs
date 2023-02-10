@@ -1,4 +1,3 @@
-use std::ffi::c_int;
 use std::mem::size_of;
 
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
@@ -24,5 +23,5 @@ pub fn unclick_mouse() {
         },
     };
 
-    unsafe { SendInput(&[input], size_of::<INPUT>() as c_int) };
+    unsafe { SendInput(&[input], size_of::<INPUT>() as i32) };
 }

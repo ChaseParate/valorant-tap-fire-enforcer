@@ -19,7 +19,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let fire_rate = match args.weapon_name.trim().to_lowercase().as_str() {
+    let fire_rate = match args.weapon_name.to_lowercase().trim() {
         "vandal" => 9.75f32,
         "phantom" => 11.0f32,
         _ => todo!(),
