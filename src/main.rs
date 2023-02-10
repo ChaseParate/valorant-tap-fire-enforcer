@@ -4,14 +4,15 @@ use clap::{Parser, ValueEnum};
 
 mod peripherals;
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
 struct Args {
     /// Name of the weapon to use
-    #[clap(short, long, arg_enum, value_parser)]
+    #[arg(short, long, value_enum)]
     weapon_name: Weapon,
 
     /// Number of bullets to shoot per burst
-    #[clap(short, long, value_parser, default_value_t = 2)]
+    #[arg(short, long, default_value_t = 2)]
     num_bullets: u8,
 }
 
