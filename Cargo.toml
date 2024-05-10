@@ -1,8 +1,8 @@
 [package]
 name = "valorant_tap_fire_enforcer"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.1.4", features = ["derive"] }
+clap = { version = "4.5.4", features = ["derive"] }
 windows = { version = "0.56.0", features = ["Win32_UI_Input_KeyboardAndMouse"] }

@@ -1,50 +1,57 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use clap::{Parser, ValueEnum};
 
 mod peripherals;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
 struct Args {
-    /// Name of the weapon to use
+    /// The weapon to use
     #[arg(short, long, value_enum)]
-    weapon_name: Weapon,
+    weapon: Weapon,
 
     /// Number of bullets to shoot per burst
     #[arg(short, long, default_value_t = 2)]
-    num_bullets: u8,
+    bullet_count: u8,
+
+    /// Scales how much time to wait before releasing the mouse button (not necessary to tweak unless you are shooting too many/few bullets)
+    #[arg(short, long, default_value_t = 0.8)]
+    compensation_scale: f32,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(Debug, Clone, ValueEnum)]
 enum Weapon {
     Vandal,
     Phantom,
 }
 
+impl Weapon {
+    const fn fire_rate(&self) -> f32 {
+        match self {
+            Weapon::Vandal => 9.75,
+            Weapon::Phantom => 11.0,
+        }
+    }
+}
+
 fn main() {
-    let args = Args::parse();
+    let Args {
+        weapon,
+        bullet_count,
+        compensation_scale,
+    } = Args::parse();
 
-    let fire_rate = match args.weapon_name {
-        Weapon::Vandal => 9.75,
-        Weapon::Phantom => 11.0,
-    };
-    let num_bullets = args.num_bullets;
-
-    let sleep_time = (num_bullets as f32 / fire_rate) * 0.75;
+    let sleep_duration =
+        Duration::from_secs_f32((bullet_count as f32 / weapon.fire_rate()) * compensation_scale);
 
     loop {
         let start = Instant::now();
-        let mut mouse_down = peripherals::is_mouse_clicked();
 
-        'mouse: while mouse_down {
-            let time_passed = start.elapsed();
-            if time_passed.as_secs_f32() >= sleep_time {
+        'mouse: while peripherals::is_mouse_clicked() {
+            if start.elapsed() >= sleep_duration {
                 peripherals::unclick_mouse();
                 break 'mouse;
             }
-
-            mouse_down = peripherals::is_mouse_clicked();
         }
     }
 }
