@@ -7,7 +7,7 @@ mod peripherals;
 #[derive(Parser)]
 struct Args {
     /// The weapon to use
-    #[arg(short, long, value_enum)]
+    #[arg(short, long, value_enum, default_value_t = Weapon::Vandal)]
     weapon: Weapon,
 
     /// Number of bullets to shoot per burst
@@ -43,6 +43,9 @@ fn main() {
 
     let sleep_duration =
         Duration::from_secs_f32((bullet_count as f32 / weapon.fire_rate()) * compensation_scale);
+
+    println!("VALORANT Tap Fire Enforcer v{}", env!("CARGO_PKG_VERSION"));
+    println!("{weapon:?} - {bullet_count} Bullets");
 
     loop {
         let start = Instant::now();
